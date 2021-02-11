@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import json
-from lib.github import ask_github
+from lib.github import Github
 from lib.argparse import base_parser
 
 
@@ -8,15 +8,16 @@ def main(
     org_name: str,
     user_token: str
 ) -> None:
+    github = Github()
     oh_repos = {
-        repo["name"]: len(ask_github(
-            path=f"/repos/{org_name}/{repo['name']}/branches?per_page=100&page=1",
+        repo["name"]: len(github.ask(
+            path=f"/repos/{org_name}/{repo['name']}/branches?per_page=10&page=1",
             token=user_token
-        )["decoded_response"])
-        for repo in ask_github(
-            path=f"/orgs/{org_name}/repos?per_page=100&page=1",
+        ))
+        for repo in github.ask(
+            path=f"/orgs/{org_name}/repos?per_page=10&page=1",
             token=user_token
-        )["decoded_response"]
+        )
     }
     print(json.dumps(oh_repos, indent=4, sort_keys=True))
 
