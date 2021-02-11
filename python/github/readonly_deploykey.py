@@ -11,45 +11,43 @@ class DeployKey:
 
     def __init__(
         self,
-        user_token: str,
-        github_url: str = "https://api.github.com"
-    ) -> None:
-        self.github_url = github_url
-        self.github = Github(github_url=self.github_url)
-        self.user_token = user_token
-
-
-    def add(
-        self,
         key_name: str,
         org_name: str,
         public_key: str,
-        repo_name: str,
-        read_only: bool = True
-    ) -> str:
-        self.github.ask(
-            path=f"/repos/{org_name}/{repo_name}/keys",
-            body={"title": key_name, "key": public_key, "read_only": read_only},
+        user_token: str,
+        github_url: str = "https://api.github.com"
+    ) -> None:
+        self.key_name = key_name
+        self.org_name = org_name
+        self.public_key = public_key
+        self.user_token = user_token
+        self.github_url = github_url
+        self.github = Github(github_url=self.github_url)
+
+
+    def add(self, repo_name: str, read_only: bool = True) -> dict:
+        self._removing_key_if_exists(repo_name=repo_name)
+        self.log.info("I will try to add key %s with value %s to repo %s", self.key_name, self.public_key, repo_name)
+        return self.github.ask(
+            path=f"/repos/{self.org_name}/{repo_name}/keys",
+            body={"title": self.key_name, "key": self.public_key, "read_only": read_only},
             http_verb="POST",
             token=self.user_token
         )
 
 
-    def is_key_in_repo(
-        self,
-        key_name: str,
-        org_name: str,
-        public_key: str,
-        repo_name: str,
-    ) -> bool:
+    def _removing_key_if_exists(self, repo_name: str) -> None:
+        self.log.info("Checking if key %s exists in repository %s", self.key_name, repo_name)
         for key in self.github.ask(
-            path=f"/repos/{org_name}/{repo_name}/keys?per_page=10&page=1",
+            path=f"/repos/{self.org_name}/{repo_name}/keys?per_page=10&page=1",
             token=self.user_token
         ):
-        if any(key_name == item["title"] or public_key == item["key"] for item in keys):
-            return True
-        else:
-            return False
+            self.log.info("key id: [%s] has name %s or public key %s, I will remove it", key["id"], self.key_name, self.public_key)
+            self.github.ask(
+                path=f"{self.path}/{key['id']}",
+                http_verb="DELETE",
+                token=self.user_token
+            )
 
 
 def main(
@@ -59,17 +57,29 @@ def main(
     user_token: str
 ) -> None:
     github = Github()
+    deploy_key = DeployKey(
+        key_name=key_name,
+        org_name=org_name,
+        public_key=public_key,
+        user_token=user_token
+    )
+    #oh_repos = {
+    #    repo["name"]: deploy_key.add(repo_name=repo["name"])
+    #    for repo in github.ask(
+    #        path=f"/orgs/{org_name}/repos?per_page=10&page=1",
+    #        token=user_token
+    #    )
+    #}
     oh_repos = {
-        repo["name"]: github.ask(
-            path=f"/orgs/{org_name}/teams/{org_team}/repos/{org_name}/{repo['name']}",
-            body={"title": key_name, "key": public_key, "read_only": True},
-            http_verb="POST",
-            token=user_token
-        )
-        for repo in github.ask(
-            path=f"/orgs/{org_name}/repos?per_page=10&page=1",
-            token=user_token
-        )
+        repo["name"]: deploy_key.add(repo_name=repo["name"])
+        for repo in [
+            {
+                "name": "***REMOVED***"
+            },
+            {
+                "name": "***REMOVED***"
+            }
+        ]
     }
     print(json.dumps(oh_repos, indent=4, sort_keys=True))
 
