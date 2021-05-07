@@ -29,14 +29,16 @@ class Github:
             "Accept": "application/vnd.github.v3+json",
             "Authorization": f"token {token}"
         }
+        merged_headers = {**default_headers, **headers}
         encoded_body = json.dumps(body).encode("utf-8")
         full_path = f"{self.github_url}{path}"
         request = Request(
             url=full_path,
             method=http_verb,
-            headers={**default_headers, **headers},
+            headers=merged_headers,
             data=encoded_body
         )
+        self.log.debug("url is %s, http_verb is %s and body is %s", full_path, http_verb, body)
         response = urlopen(request)
         self.log.debug("Response code to %s on %s was: [%s]", http_verb, full_path, response.status)
         content = self._decode_response(response)

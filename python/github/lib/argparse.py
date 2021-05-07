@@ -4,6 +4,8 @@ import logging
 import os
 import sys
 
+from lib.github import Github
+
 
 LOG_LEVEL_STRINGS = {
     'CRITICAL': logging.CRITICAL,
@@ -53,6 +55,13 @@ def base_environment_variables(
     if os.environ.get('LOG_LEVEL'):
         args.log_level = os.environ['LOG_LEVEL']
     set_log_level(args)
+    log = logging.getLogger(__name__)
+    gh = Github()
+    user = gh.ask(
+        path='/user',
+        token=args.token
+    )
+    log.debug("You are currently acting as login %s of type %s from company %s, is site_admin: %s", user['login'], user['type'], user['company'], user['site_admin'])
 
 
 def base_parser(
