@@ -13,6 +13,8 @@
 
 - Create Active-Active Virtual Network Gateway in Azure
   - Remember the Public IP Addresses, we will need them later
+  - If you do NOT know how to make one read
+    [here](https://hackernoon.com/how-to-connect-between-azure-and-aws-with-managed-services-4b03ec334e8a)
 - Get VPC ID for the network you want to connect in AWS
 - Get the Subnets you want to peer
   - AWS
