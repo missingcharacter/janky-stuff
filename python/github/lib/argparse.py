@@ -68,7 +68,8 @@ def base_parser(
     description: str
 ) -> dict:
     parser = argparse.ArgumentParser(
-        description=description
+        description=description,
+        formatter_class=lambda prog: argparse.RawTextHelpFormatter(prog, width=35)
     )
     base_arguments(parser=parser)
     args = parser.parse_args(sys.argv[1:])
@@ -79,7 +80,8 @@ def deploykey_parser(
     description: str
 ) -> dict:
     parser = argparse.ArgumentParser(
-        description=description
+        description=description,
+        formatter_class=lambda prog: argparse.RawTextHelpFormatter(prog, width=35)
     )
     base_arguments(parser=parser)
     parser.add_argument(
@@ -104,7 +106,8 @@ def team_parser(
     description: str
 ) -> dict:
     parser = argparse.ArgumentParser(
-        description=description
+        description=description,
+        formatter_class=lambda prog: argparse.RawTextHelpFormatter(prog, width=35)
     )
     base_arguments(parser=parser)
     parser.add_argument(

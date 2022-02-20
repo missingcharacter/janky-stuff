@@ -40,6 +40,8 @@ AWS_PROFILE=your-profile ./create_ipsec.sh --azure-cidr <azure CIDR> \
 
 ## `./create_ipsec.sh` help
 
+<!-- markdownlint-disable MD013 -->
+
 ```shell
 ./create_ipsec.sh -h
 Usage:
@@ -61,3 +63,5 @@ Does the following:
   - Creates Azure IPsec Tunnel per AWS tunnel IP
   - Adds Azure subnet to all route tables in VPC
 ```
+
+<!-- markdownlint-enable MD013 -->
