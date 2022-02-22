@@ -12,8 +12,8 @@ PADDING=$(printf %-${#THIS_SCRIPT}s " ")
 
 function usage () {
   echo "Usage:"
-  echo "${THIS_SCRIPT} -s <Pulumi stack name. Examples: k8s-agents, k8s-controllers. REQUIRED>"
-  echo "${PADDING} -r <Use this flag to indicate instance should be replaced. if NOT used desired capacity will be decreased>"
+  echo "${THIS_SCRIPT} -s <Auto Scaling Group(s) prefix. Examples: k8s-agents, k8s-controllers. REQUIRED>"
+  echo "${PADDING} -r <Use this flag to indicate instances should be replaced. if NOT used desired capacity will be decreased>"
   echo "${PADDING} -y <Use this flag to answer 'Yes' to all questions>"
   echo
   echo "Retire instances NOT using current Launch Template version"
@@ -55,19 +55,27 @@ trap cleanup EXIT
 
 msg_info "I will ${ACTION} instance(s)"
 
-declare -a ASGS
-ASGS=()
-while IFS= read -r line; do
-  if [[ -n ${line} ]]; then
-    ASGS+=("${line}")
-  fi
-done < <(get_asgs "${STACK_NAME}" "${TMP_DIR}")
+declare -a INSTANCES
+INSTANCES=()
+while IFS= read -r i; do
+  INSTANCES+=("${i}")
+done < <(get_old_instances "${STACK_NAME}" "${TMP_DIR}")
 
-msg_info "${STACK_NAME} has ${#ASGS[@]} Auto Scaling Group(s)"
+if [[ ${#INSTANCES[@]} -eq 0 ]]; then
+  msg_info 'bye bye!'
+  exit 0
+fi
 
 IS_K8S_AVAILABLE="$(is_k8s_available)"
 msg_info "Is kubernetes reachable? ${IS_K8S_AVAILABLE}"
 
-for asg in "${ASGS[@]}"; do
-  retire_instances_in_asg "${asg}" "${TMP_DIR}" "${ACTION}" "${ASK}" "${IS_K8S_AVAILABLE}"
+# Cordon all instances
+if [[ "${IS_K8S_AVAILABLE}" == 'yes' ]]; then
+  for instance in "${INSTANCES[@]}"; do
+    cordon_or_drain_instance "${instance}" "${ASK}" 'cordon'
+  done
+fi
+
+for instance in "${INSTANCES[@]}"; do
+  retire_instance "${instance}" "${ACTION}" "${ASK}" "${IS_K8S_AVAILABLE}"
 done
