@@ -8,6 +8,6 @@ function encrypt() {
   kubeseal -f "${FILE}" -w "${TO_FILE}"
 }
 
-for file in $(ls *decrypted*); do
-    encrypt "${file}"
+for file in *decrypted*; do
+  encrypt "${file}"
 done
