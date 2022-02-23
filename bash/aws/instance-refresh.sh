@@ -4,7 +4,7 @@ GITROOT=$(git rev-parse --show-toplevel)
 # shellcheck disable=SC1090,SC1091
 . "${GITROOT}"/bash/lib/strict-mode/strict-mode
 # shellcheck disable=SC1090,SC1091
-. "${GITROOT}"/cloud/asg-instance-refresh/lib/utils
+. "${GITROOT}"/bash/aws/lib/utils
 strictMode
 
 THIS_SCRIPT=$(basename "${0}")

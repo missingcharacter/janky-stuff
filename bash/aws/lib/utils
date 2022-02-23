@@ -2,32 +2,34 @@
 # shellcheck disable=SC1090,SC1091
 GITROOT=$(git rev-parse --show-toplevel)
 . "${GITROOT}"/bash/lib/strict-mode/strict-mode
+. "${GITROOT}"/bash/lib/utils
 strictMode
 
-ANSI_NO_COLOR=$'\033[0m'
-
-function msg_info() {
-  local GREEN=$'\033[0;32m'
-  printf "%s\n" "${GREEN}${*}${ANSI_NO_COLOR}" >&2
-}
-
-function msg_warn() {
-  local YELLOW=$'\033[0;33m'
-  printf "%s\n" "${YELLOW}${*}${ANSI_NO_COLOR}" >&2
-}
-
-function msg_fatal() {
-  local RED=$'\033[0;31m'
-  printf "%s\n" "${RED}${*}${ANSI_NO_COLOR}" >&2
-  exit 1
-}
-
-function return_non_empty_array() {
-  declare -a INPUT
-  INPUT=("${@}")
-  if [[ ${#INPUT[@]} -ne 0 ]]; then
-    printf "%s\n" "${INPUT[@]}"
+function select_asg() {
+  local STACK_NAME="${1}"
+  local TMP_DIR="${2}"
+  local FIRST="${3:-no}"
+  local ASG_NAME
+  local ASG_FILE
+  declare -a ASGS ASG_NAMES
+  ASGS=()
+  ASG_NAMES=()
+  while IFS= read -r asg; do
+    ASGS+=("${asg}")
+    ASG_NAMES+=("$(get_asg_name "${asg}")")
+  done < <(get_asgs "${STACK_NAME}" "${TMP_DIR}")
+  ASG_FILE="${ASGS[0]}"
+  if [[ "${FIRST}" == 'no' ]]; then
+    ASG_NAME="$(create_menu "${ASG_NAMES[@]}")"
+    for i in "${!ASGS[@]}"; do
+      # shellcheck disable=SC2076
+      if [[ "${ASGS[${i}]}" =~ "${ASG_NAME}" ]]; then
+        ASG_FILE="${ASGS[${i}]}"
+        break
+      fi
+    done
   fi
+  echo -n "${ASG_FILE}"
 }
 
 function get_asgs() {
@@ -87,6 +89,35 @@ function get_asg_lt_version() {
     LT_VERSION="$(get_lt_version_from_latest "${LT_ID}")"
   fi
   echo -n "${LT_VERSION}"
+}
+
+function output_user_data() {
+  local USERDATA_FILE="${1}"
+  case "$(file "${USERDATA_FILE}")" in
+    ${USERDATA_FILE}:\ gzip\ compressed\ data*)
+      gunzip < "${USERDATA_FILE}"
+      ;;
+    ${USERDATA_FILE}:*ASCII\ text*)
+      cat "${USERDATA_FILE}"
+      ;;
+    *)
+      msg_fatal "Unknown file type: $(file "${USERDATA_FILE}")" >&2
+      ;;
+  esac
+}
+
+function get_user_data() {
+  local ASG_FILE="${1}"
+  local TMP_DIR="${2}"
+  local LT_ID LT_VERSION USERDATA_FILE
+  LT_ID="$(get_asg_lt_id "${ASG_FILE}")"
+  LT_VERSION="$(get_lt_version_from_asg_file "${ASG_FILE}")"
+  USERDATA_FILE="${TMP_DIR}/userdata"
+  aws ec2 describe-launch-template-versions --versions "${LT_VERSION}" \
+      --launch-template-id "${LT_ID}" --output text \
+      --query 'LaunchTemplateVersions[0].LaunchTemplateData.UserData' | \
+      base64 --decode > "${USERDATA_FILE}"
+  output_user_data "${USERDATA_FILE}"
 }
 
 function get_instances_in_asg() {
@@ -160,45 +191,19 @@ function get_k8s_node_name() {
   kubectl get nodes -l "${NODE_LABEL}" -o jsonpath="${JSON_PATH}" 2>/dev/null
 }
 
-function get_operatingsystem() {
-  local kernel_name
-  kernel_name="$(uname)"
-  case "${kernel_name}" in
-    Linux)
-      echo -n 'linux'
-      ;;
-    Darwin)
-      echo -n 'macos'
-      ;;
-    *)
-      msg_fatal "Sorry, ${kernel_name} is not supported."
-      ;;
-  esac
-}
-
 function create_temp_dir() {
   local DIR_NAME="${1}"
   case "$(get_operatingsystem)" in
-  linux)
-    echo -n "$(mktemp -dt "${DIR_NAME}.XXXX")"
-    ;;
-  macos)
-    echo -n "$(/usr/bin/mktemp -dt "${DIR_NAME}")"
-    ;;
-  *)
-    msg_fatal "Sorry, $(uname) is not supported."
-    ;;
+    linux)
+      echo -n "$(mktemp -dt "${DIR_NAME}.XXXX")"
+      ;;
+    macos)
+      echo -n "$(/usr/bin/mktemp -dt "${DIR_NAME}")"
+      ;;
+    *)
+      msg_fatal "Sorry, $(uname) is not supported."
+      ;;
   esac
-}
-
-function get_user_reply() {
-  local QUESTION="${1}"
-  local RESET="\033[0m"
-  local BOLD="\033[1m"
-  local YELLOW="\033[38;5;11m"
-  local USER_REPLY
-  read -p "$(echo -e "${BOLD}${YELLOW}${QUESTION}${RESET}[Y or N] ")" -n 1 -r USER_REPLY
-  echo -n "${USER_REPLY}"
 }
 
 function is_k8s_available() {

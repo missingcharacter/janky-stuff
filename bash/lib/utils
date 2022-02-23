@@ -1,0 +1,74 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC1090,SC1091
+GITROOT=$(git rev-parse --show-toplevel)
+. "${GITROOT}"/bash/lib/strict-mode/strict-mode
+strictMode
+
+ANSI_NO_COLOR=$'\033[0m'
+
+function msg_info() {
+  local GREEN=$'\033[0;32m'
+  printf "%s\n" "${GREEN}${*}${ANSI_NO_COLOR}" >&2
+}
+
+function msg_warn() {
+  local YELLOW=$'\033[0;33m'
+  printf "%s\n" "${YELLOW}${*}${ANSI_NO_COLOR}" >&2
+}
+
+function msg_error() {
+  local RED=$'\033[0;31m'
+  printf "%s\n" "${RED}${*}${ANSI_NO_COLOR}" >&2
+}
+
+function msg_fatal() {
+  msg_error "${*}"
+  exit 1
+}
+
+function return_non_empty_array() {
+  declare -a INPUT
+  INPUT=("${@}")
+  if [[ ${#INPUT[@]} -ne 0 ]]; then
+    printf "%s\n" "${INPUT[@]}"
+  fi
+}
+
+function create_menu() {
+  select option; do # in "$@" is the default
+    # shellcheck disable=SC2076,SC2199
+    if [[ " ${@} " =~ " ${option} " ]]; then
+      msg_info "You selected ${option} which is option ${REPLY}"
+      echo -n "${option}"
+      break
+    else
+      msg_fatal "Incorrect Input: Select a number 1-${#}"
+    fi
+  done
+}
+
+function get_operatingsystem() {
+  local kernel_name
+  kernel_name="$(uname)"
+  case "${kernel_name}" in
+    Linux)
+      echo -n 'linux'
+      ;;
+    Darwin)
+      echo -n 'macos'
+      ;;
+    *)
+      msg_fatal "Sorry, ${kernel_name} is not supported."
+      ;;
+  esac
+}
+
+function get_user_reply() {
+  local QUESTION="${1}"
+  local RESET="\033[0m"
+  local BOLD="\033[1m"
+  local YELLOW="\033[38;5;11m"
+  local USER_REPLY
+  read -p "$(echo -e "${BOLD}${YELLOW}${QUESTION}${RESET}[Y or N] ")" -n 1 -r USER_REPLY
+  echo -n "${USER_REPLY}"
+}
