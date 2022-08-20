@@ -63,14 +63,14 @@ def main(
         public_key=public_key,
         user_token=user_token
     )
-    oh_repos = {
+    repos = {
         repo["name"]: deploy_key.add(repo_name=repo["name"])
         for repo in github.ask(
             path=f"/orgs/{org_name}/repos?per_page=10&page=1",
             token=user_token
         )
     }
-    print(json.dumps(oh_repos, indent=4, sort_keys=True))
+    print(json.dumps(repos, indent=4, sort_keys=True))
 
 
 if __name__ == '__main__':
