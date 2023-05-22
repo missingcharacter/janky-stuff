@@ -24,15 +24,37 @@ function retry_command() {
 }
 
 function get_arch() {
-  case "$(uname -m)" in
-  armv5*) echo -n "armv5" ;;
-  armv6*) echo -n "armv6" ;;
-  armv7*) echo -n "armv7" ;;
-  aarch64) echo -n "arm64" ;;
-  x86) echo -n "386" ;;
-  x86_64) echo -n "amd64" ;;
-  i686) echo -n "386" ;;
-  i386) echo -n "386" ;;
+  local arch
+  arch="$(uname -m)"
+  case "${arch}" in
+    armv5*)
+      echo -n "armv5"
+      ;;
+    armv6*)
+      echo -n "armv6"
+      ;;
+    armv7*)
+      echo -n "armv7"
+      ;;
+    aarch64)
+      echo -n "arm64"
+      ;;
+    x86)
+      echo -n "386"
+      ;;
+    x86_64)
+      echo -n "amd64"
+      ;;
+    i686)
+      echo -n "386"
+      ;;
+    i386)
+      echo -n "386"
+      ;;
+    *)
+      echo "Sorry, ${arch} is not supported." >&2
+      exit 1
+      ;;
   esac
 }
 
@@ -40,28 +62,26 @@ function get_os() {
   local kernel_name
   kernel_name="$(uname)"
   case "${kernel_name}" in
-  Linux)
-    echo -n 'linux'
-    ;;
-  Darwin)
-    echo -n 'macos'
-    ;;
-  *)
-    echo "Sorry, ${kernel_name} is not supported." >&2
-    exit 1
-    ;;
+    Linux)
+      echo -n 'linux'
+      ;;
+    Darwin)
+      echo -n 'macos'
+      ;;
+    *)
+      echo "Sorry, ${kernel_name} is not supported." >&2
+      exit 1
+      ;;
   esac
 }
 
-retry=3
-
-echo "Install detect-secrets"
-
-retry_command "${retry}" 'bash' '-c' 'pip install detect-secrets'
-
+SHELLCHECK_VERSION='v0.9.0'
 echo "Install shellcheck"
-wget -qO- https://github.com/koalaman/shellcheck/releases/download/v0.9.0/shellcheck-v0.9.0.linux.x86_64.tar.xz | tar -xJf -
-cd shellcheck-v0.9.0/
+wget \
+  -qO- \
+  "https://github.com/koalaman/shellcheck/releases/download/${SHELLCHECK_VERSION}/shellcheck-${SHELLCHECK_VERSION}.$(tr '[:upper:]' '[:lower:]' < <(uname)).$(uname -m).tar.xz" | \
+  tar -xJf -
+cd shellcheck-"${SHELLCHECK_VERSION}"/
 cp shellcheck /usr/local/bin
 
 hash -r
