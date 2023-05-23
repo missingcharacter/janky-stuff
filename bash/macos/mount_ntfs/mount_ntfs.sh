@@ -2,6 +2,10 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+function 10_chars() {
+  echo "${RANDOM}" | md5sum | head -c 10
+}
+
 function is_ntfs_readonly() {
   local DISK="${1}"
   local RET_VALUE='1'
@@ -16,12 +20,11 @@ function is_ntfs_readonly() {
 
 function mount_ntfs() {
   local DISK="${1}"
-  local DISK_NUMBER="${2}"
   if is_ntfs_readonly "${DISK}"; then
     sudo diskutil unmount "/dev/${DISK}"
     sudo /usr/local/bin/ntfs-3g \
       "/dev/${DISK}" \
-      "/Volumes/NTFS${DISK_NUMBER}" \
+      "/Volumes/NTFS$(10_chars)" \
       -o local \
       -o allow_other \
       -o auto_xattr \
@@ -30,10 +33,8 @@ function mount_ntfs() {
   fi
 }
 
-counter=0
 while IFS= read -r disk; do
   if [[ -n ${disk} ]]; then
-    mount_ntfs "${disk}" "${counter}"
-    ((counter=counter+1))
+    mount_ntfs "${disk}"
   fi
 done < <(diskutil list external | grep "Windows_NTFS\|Microsoft Basic Data" | rev | awk '{ print $1 }' | rev)
