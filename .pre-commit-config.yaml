@@ -1,7 +1,7 @@
 ---
 repos:
   - repo: https://github.com/lyz-code/yamlfix/
-    rev: 1.9.0
+    rev: 1.16.0
     hooks:
       - id: yamlfix
   - repo: https://github.com/Yelp/detect-secrets
@@ -10,7 +10,7 @@ repos:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline]
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.4.0
+    rev: v4.5.0
     hooks:
       - id: check-merge-conflict
       - id: detect-private-key
@@ -23,10 +23,14 @@ repos:
       - id: check-yaml
       - id: requirements-txt-fixer
   - repo: https://github.com/gruntwork-io/pre-commit
-    rev: v0.1.22
+    rev: v0.1.23
     hooks:
       - id: shellcheck
   - repo: https://github.com/igorshubovych/markdownlint-cli
-    rev: v0.34.0
+    rev: v0.37.0
     hooks:
       - id: markdownlint-fix
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.6.26
+    hooks:
+      - id: actionlint-system
