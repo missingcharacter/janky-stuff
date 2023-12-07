@@ -7,7 +7,6 @@ on:
     branches:
       - develop
       - main
-  pull_request:
 jobs:
   renovate:
     name: Run renovate
