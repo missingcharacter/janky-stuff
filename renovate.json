@@ -1,3 +1,8 @@
 {
-  "$schema": "https://docs.renovatebot.com/renovate-schema.json"
+ 	"$schema": "https://docs.renovatebot.com/renovate-schema.json",
+    "repositories": ["missingcharacter/janky-stuff"],
+	"extends": [
+		"config:recommended",
+		 "schedule:daily"
+	]
 }
