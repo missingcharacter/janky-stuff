@@ -1,8 +1,18 @@
 {
-    "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-    "repositories": ["missingcharacter/janky-stuff"],
-    "extends": [
-        "config:recommended",
-         "schedule:daily"
-    ]
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    "schedule:daily"
+  ],
+  "repositories": [
+    "missingcharacter/compose-stacks",
+    "missingcharacter/dot-files",
+    "missingcharacter/ec2-tmux-cssh",
+    "missingcharacter/fpm-my-package",
+    "missingcharacter/infra-thunder",
+    "missingcharacter/janky-stuff",
+    "missingcharacter/kubernetes-the-hard-way-the-easy-way",
+    "missingcharacter/ricdros.com",
+    "missingcharacter/termux-dot-files"
+  ]
 }
