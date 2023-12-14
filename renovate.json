@@ -1,9 +1,16 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:best-practices",
+    "config:recommended",
+    "group:all",
     "schedule:daily"
   ],
+  "lockFileMaintenance": {
+    "commitMessageAction": "Update",
+    "extends": [
+      "group:all"
+    ]
+  },
   "repositories": [
     "missingcharacter/compose-stacks",
     "missingcharacter/dot-files",
@@ -14,5 +21,6 @@
     "missingcharacter/kubernetes-the-hard-way-the-easy-way",
     "missingcharacter/ricdros.com",
     "missingcharacter/termux-dot-files"
-  ]
+  ],
+  "separateMajorMinor": false
 }
