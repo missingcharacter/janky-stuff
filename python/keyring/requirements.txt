@@ -1,4 +1,4 @@
-cffi==1.17.0
+cffi==1.17.1
 cryptography==43.0.1
 jeepney==0.8.0
 keyring==25.3.0
