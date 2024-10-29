@@ -20,7 +20,8 @@
     "missingcharacter/janky-stuff",
     "missingcharacter/kubernetes-the-hard-way-the-easy-way",
     "missingcharacter/ricdros.com",
-    "missingcharacter/termux-dot-files"
+    "missingcharacter/termux-dot-files",
+    "missingcharacter/gdomains-2-porkbun"
   ],
   "separateMajorMinor": false
 }
