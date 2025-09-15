@@ -2,5 +2,5 @@ cffi==1.17.1
 cryptography==45.0.7
 jeepney==0.9.0
 keyring==25.6.0
-pycparser==2.22
+pycparser==2.23
 SecretStorage==3.3.3
