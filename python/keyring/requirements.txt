@@ -3,4 +3,4 @@ cryptography==46.0.3
 jeepney==0.9.0
 keyring==25.6.0
 pycparser==2.23
-SecretStorage==3.4.0
+SecretStorage==3.5.0
