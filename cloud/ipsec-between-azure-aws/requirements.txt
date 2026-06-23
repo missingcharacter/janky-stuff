@@ -1,10 +1,10 @@
-boto3==1.43.29
-boto3-stubs==1.43.29
-botocore==1.43.29
+boto3==1.43.36
+boto3-stubs==1.43.36
+botocore==1.43.36
 botocore-stubs==1.43.14
 jmespath==1.1.0
-mypy-boto3-ec2==1.43.27
+mypy-boto3-ec2==1.43.35
 python-dateutil==2.9.0.post0
-s3transfer==0.18.0
+s3transfer==0.19.0
 six==1.17.0
 urllib3==2.7.0
